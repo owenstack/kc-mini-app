@@ -1,5 +1,5 @@
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { env } from "@/env";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import WebApp from "@twa-dev/sdk";
 import { http, createWalletClient } from "viem";
 import { mnemonicToAccount } from "viem/accounts";

@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from "react";
 import lottie, { type AnimationItem } from "lottie-web";
+import { useEffect, useRef, useState } from "react";
 
 interface StickerProps {
 	json: JSON;

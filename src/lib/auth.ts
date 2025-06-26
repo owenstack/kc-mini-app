@@ -1,4 +1,5 @@
 import { retrieveLaunchParams } from "@telegram-apps/sdk";
+import type { z } from "zod";
 import {
 	apiUrl,
 	zodActiveBoosters,
@@ -9,7 +10,6 @@ import {
 	zodTransactions,
 	zodUser,
 } from "./constants";
-import type { z } from "zod";
 
 class TelegramAuth {
 	private initData: unknown | null = null;

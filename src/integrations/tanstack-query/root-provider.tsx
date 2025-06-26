@@ -1,13 +1,13 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import WebApp from "@twa-dev/sdk";
-import { AppRoot } from "@telegram-apps/telegram-ui";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
-import { useMemo } from "react";
-import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { mainnet } from "wagmi/chains";
-import { createConfig, http, WagmiProvider } from "wagmi";
 import { env } from "@/env";
-import { useSignal, isMiniAppDark } from "@telegram-apps/sdk-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { isMiniAppDark, useSignal } from "@telegram-apps/sdk-react";
+import { AppRoot } from "@telegram-apps/telegram-ui";
+import WebApp from "@twa-dev/sdk";
+import { ConnectKitProvider, getDefaultConfig } from "connectkit";
+import { useMemo } from "react";
+import { http, WagmiProvider, createConfig } from "wagmi";
+import { mainnet } from "wagmi/chains";
 
 const queryClient = new QueryClient();
 

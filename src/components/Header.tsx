@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import { telegramAuth } from "@/lib/auth";
+import { Link } from "@tanstack/react-router";
 
 export default function Header() {
 	const user = telegramAuth.getCurrentUser();

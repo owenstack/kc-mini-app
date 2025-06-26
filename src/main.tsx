@@ -1,7 +1,7 @@
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { AppRoot } from "@telegram-apps/telegram-ui";
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
 import "@telegram-apps/telegram-ui/dist/styles.css";
 import { init } from "@/components/init";
@@ -12,9 +12,9 @@ import "@/components/mock-env";
 import { routeTree } from "./routeTree.gen.ts";
 
 import "./styles.css";
-import reportWebVitals from "./reportWebVitals.ts";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { EnvUnsupported } from "./components/unsupported-env.tsx";
+import reportWebVitals from "./reportWebVitals.ts";
 
 // Create a new router instance
 const router = createRouter({

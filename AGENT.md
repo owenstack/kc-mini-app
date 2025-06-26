@@ -2,12 +2,11 @@
 
 ## Commands
 
-- `npm run dev` - Start dev server on port 3000
-- `npm run build` - Production build with TypeScript check
-- `npm test` - Run all tests with Vitest
-- `npm run format` - Format code with Biome
-- `npm run lint` - Lint code with Biome
-- `npm run check` - Lint and format check with Biome
+- `bun run dev` - Start dev server on port 3000
+- `bun run build` - Production build with TypeScript check
+- `bun test` - Run all tests with Vitest
+- `bun run format` - Format code with Biome
+- `bun run lint` - Lint code with Biome
 
 ## Architecture
 

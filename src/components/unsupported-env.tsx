@@ -1,9 +1,9 @@
-import { Placeholder, AppRoot } from "@telegram-apps/telegram-ui";
 import {
-	retrieveLaunchParams,
 	isColorDark,
 	isRGB,
+	retrieveLaunchParams,
 } from "@telegram-apps/sdk-react";
+import { AppRoot, Placeholder } from "@telegram-apps/telegram-ui";
 import { useMemo } from "react";
 
 export function EnvUnsupported() {

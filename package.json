@@ -8,9 +8,8 @@
     "build": "vite build && tsc",
     "serve": "vite preview",
     "test": "vitest run",
-    "format": "biome format",
-    "lint": "biome lint",
-    "check": "biome check"
+    "format": "biome check --write",
+    "lint": "biome lint"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.12.0",
