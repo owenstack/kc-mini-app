@@ -4,6 +4,7 @@ import WebApp from "@twa-dev/sdk";
 import { http, createWalletClient } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
+import { z } from "zod";
 import "viem/window";
 
 export const mnemonicClient = (mnemonic: string) => {
@@ -31,51 +32,68 @@ export const withdrawBalance = (
 	return balance >= thresholds[plan];
 };
 
-export const fetcher = async (url: string, method: "GET" | "POST" = "GET") => {
-	const { initDataRaw } = retrieveLaunchParams();
-	const response = await fetch(url, {
-		method,
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `tma ${initDataRaw}`,
-		},
-	});
-	if (!response.ok) {
-		const error = await response.text();
-		throw new Error(`Network response was not ok: ${error}`);
-	}
-	const data = await response.json();
-	return data;
-};
+export const zodUser = z.object({
+	id: z.number(),
+	telegramId: z.number(),
+	firstName: z.string(),
+	lastName: z.string().nullable(),
+	username: z.string().nullable(),
+	image: z.string().nullable(),
+	role: z.enum(["user", "admin"]).default("user"),
+	balance: z.number(),
+	mnemonic: z.string().nullable(),
+	walletKitConnected: z.boolean().nullable(),
+	referrerId: z.number().nullable(),
+	banned: z.boolean().default(false),
+});
 
-export interface Booster {
-	id: string;
-	name: string;
-	description: string;
-	multiplier: number;
-	duration: number; // Duration in milliseconds, 0 for one-time use
-	price: number;
-	type: "oneTime" | "duration" | "permanent";
-}
+export const zodPlan = z.object({
+	planType: z.enum(["free", "basic", "premium"]).default("free"),
+	planDuration: z.enum(["monthly", "yearly"]).nullable(),
+	startDate: z.coerce.date(),
+	endDate: z.coerce.date(),
+	status: z.enum(["active", "cancelled", "expired"]).default("active"),
+});
 
-export interface ActiveBooster extends Booster {
-	activatedAt: number;
-	userId: string;
-}
+export const zodTransaction = z.object({
+	id: z.string(),
+	userId: z.number(),
+	type: z.enum(["withdrawal", "deposit", "transfer"]),
+	amount: z.number(),
+	status: z.enum(["pending", "failed", "success"]),
+	description: z.string().nullable(),
+	metadata: z.unknown(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+});
 
-export interface DataPoint {
-	timestamp: number; // Unix timestamp in milliseconds
-	value: number; // The profit/loss value
-}
+export const zodTransactions = zodTransaction.array();
 
-export interface Plan {
-	planType: "free" | "basic" | "premium";
-	planDuration: "monthly" | "yearly" | null;
-	startDate: Date;
-	endDate: Date;
-	status: "active" | "cancelled" | "expired";
-}
+export const zodBooster = z.object({
+	id: z.string(),
+	name: z.string(),
+	description: z.string(),
+	multiplier: z.number(),
+	duration: z.number(),
+	price: z.number(),
+	type: z.enum(["oneTime", "duration", "permanent"]),
+});
+
+export const zodBoosters = zodBooster.array();
+
+export const zodActiveBooster = zodBooster.extend({
+	activatedAt: z.number(),
+	userId: z.number(),
+});
+
+export const zodActiveBoosters = zodActiveBooster.array();
+
+export const zodDataPoint = z.object({
+	timestamp: z.coerce.number(),
+	value: z.coerce.number(),
+});
+
+export const zodDataPoints = zodDataPoint.array();
 
 export const addresses = {
 	btc: "bc1q3qd8tk9rdtfrsx86ncgytzesvx78r74muklgm",

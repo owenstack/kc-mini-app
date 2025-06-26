@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-
+import { AppRoot } from "@telegram-apps/telegram-ui";
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
-
+import "@telegram-apps/telegram-ui/dist/styles.css";
 import { init } from "@/components/init";
 import "@telegram-apps/telegram-ui/dist/styles.css";
 import "@/components/mock-env";
@@ -52,7 +52,9 @@ if (rootElement && !rootElement.innerHTML) {
 			root.render(
 				<StrictMode>
 					<TanStackQueryProvider.Provider>
-						<RouterProvider router={router} />
+						<AppRoot>
+							<RouterProvider router={router} />
+						</AppRoot>
 					</TanStackQueryProvider.Provider>
 				</StrictMode>,
 			);
