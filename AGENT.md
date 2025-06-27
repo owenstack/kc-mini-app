@@ -28,3 +28,6 @@
 - Zod schemas for type validation (prefix with `zod`)
 - Functional components with hooks pattern
 - Error handling with try/catch and proper error types
+- UI using  Shadcn/ui and for more native telegram like components use `@telegram-apps/telegram-ui` and CSS variables as defined in the `styles.css`
+- Do not use `any` type, prefer `unknown` or specific types or types inferred from zod schema
+- Do not use `useEffect`

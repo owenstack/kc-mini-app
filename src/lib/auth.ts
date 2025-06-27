@@ -1,4 +1,4 @@
-import { retrieveLaunchParams } from "@telegram-apps/sdk";
+import { retrieveRawInitData } from "@telegram-apps/sdk-react";
 import type { z } from "zod";
 import {
 	apiUrl,
@@ -12,7 +12,7 @@ import {
 } from "./constants";
 
 class TelegramAuth {
-	private initData: unknown | null = null;
+	private initData: string | undefined = undefined;
 	private baseURL: string;
 
 	constructor(baseURL: string) {
@@ -22,7 +22,7 @@ class TelegramAuth {
 
 	private initializeAuth() {
 		try {
-			const { initDataRaw } = retrieveLaunchParams();
+			const initDataRaw = retrieveRawInitData();
 			this.initData = initDataRaw;
 		} catch (error) {
 			console.error("Failed to retrieve Telegram launch params:", error);

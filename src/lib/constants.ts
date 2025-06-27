@@ -1,5 +1,4 @@
 import { env } from "@/env";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import WebApp from "@twa-dev/sdk";
 import { http, createWalletClient } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
@@ -15,7 +14,6 @@ export const mnemonicClient = (mnemonic: string) => {
 	});
 };
 
-export const tgData = WebApp.initDataUnsafe;
 export const { openTelegramLink, showPopup } = WebApp;
 export const withdrawBalance = (
 	balance: number,
