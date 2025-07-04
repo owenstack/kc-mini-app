@@ -4,7 +4,6 @@ import { ConnectKitButton } from "connectkit";
 import { Loader2, Wallet2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useAccount } from "wagmi";
 import {
 	Card,
 	CardContent,
@@ -19,8 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { LocalWalletDialog } from "./local-wallet-dialog";
 
 export function UpdateWallet() {
-	const { user, updateUser } = useStore();
-	const { address } = useAccount();
+	const { user } = useStore();
 	const [mnemonicAddress, setMnemonicAddress] = useState("");
 	if (user?.mnemonic) {
 		setMnemonicAddress(mnemonicClient(user.mnemonic).account.address);
@@ -55,7 +53,7 @@ export function UpdateWallet() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="grid gap-4">
-				{!user?.walletAddress ? (
+				{!user?.walletKitConnected ? (
 					<>
 						<Tabs defaultValue="mnemonic">
 							<TabsList>
@@ -81,7 +79,7 @@ export function UpdateWallet() {
 					</>
 				) : (
 					<div>
-						{user?.walletAddress ? (
+						{user?.walletKitConnected ? (
 							<div className="flex  items-center justify-between">
 								<div className="space-y-0.5">
 									<Label>Default Wallet</Label>

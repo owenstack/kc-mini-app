@@ -5,12 +5,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { zodUser } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore, type User } from "@/lib/store";
 import { Pencil, Trash } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { z } from "zod";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -35,7 +33,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 interface UpdateUserProps {
-	user: z.infer<typeof zodUser>;
+	user: User;
 	onDelete: () => Promise<void>;
 }
 

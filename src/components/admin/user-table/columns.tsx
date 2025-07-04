@@ -1,13 +1,11 @@
 import { UpdateUser } from "@/components/admin/update-user";
 import { Dollar } from "@/components/main/dollar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { zodUser } from "@/lib/constants";
-import { useStore } from "@/lib/store";
+import { useStore, type User } from "@/lib/store";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import type { z } from "zod";
 
-export const columns: ColumnDef<z.infer<typeof zodUser>>[] = [
+export const columns: ColumnDef<User>[] = [
 	{
 		accessorKey: "image",
 		header: "User",
@@ -51,7 +49,6 @@ export const columns: ColumnDef<z.infer<typeof zodUser>>[] = [
 						telegramId: "",
 						username: "",
 						balance: 0,
-						multiplier: 0,
 					});
 					toast.success("User deleted successfully");
 				} catch (error) {

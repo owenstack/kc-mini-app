@@ -53,7 +53,15 @@ export function MultiplierCard() {
 										</TableCell>{" "}
 										<TableCell>${booster.price}</TableCell>
 										<TableCell>
-											<PurchaseBooster booster={booster} />
+											<PurchaseBooster
+												booster={{
+													...booster,
+													type: booster.type as
+														| "duration"
+														| "oneTime"
+														| "permanent",
+												}}
+											/>
 										</TableCell>
 									</TableRow>
 								))}

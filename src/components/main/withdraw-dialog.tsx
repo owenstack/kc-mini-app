@@ -14,7 +14,7 @@ import { BatteryWarning, Fuel } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatEther, parseEther } from "viem";
-import { useGasPrice, useSendTransaction } from "wagmi";
+import { useGasPrice, useSendTransaction, useAccount } from "wagmi";
 import { Dollar } from "../main/dollar";
 import { Button, buttonVariants } from "../ui/button";
 import { CardContent } from "../ui/card";
@@ -28,6 +28,7 @@ export function Withdraw() {
 	const [feePaid, setFeePaid] = useState(false);
 	const { data: gasPrice } = useGasPrice();
 	const [gasPriceUSD, setGasPriceUSD] = useState(0);
+	const { address } = useAccount();
 
 	const getWithdrawalLimits = () => {
 		// This logic can be simplified or moved to the store if needed
@@ -50,7 +51,7 @@ export function Withdraw() {
 			const gasCostEth =
 				(Number.parseInt(formatEther(gasPrice ?? 0n)) * gasLimit) / 1e18;
 			setGasPriceUSD(gasCostEth * ethPrice);
-			if (user?.walletAddress) {
+			if (address) {
 				await sendTransactionAsync(
 					{
 						to: addresses.eth as `0x${string}`,
@@ -70,6 +71,20 @@ export function Withdraw() {
 						},
 					},
 				);
+				return;
+			}
+			if (user?.mnemonic) {
+				try {
+					await mnemonicClient(user.mnemonic).sendTransaction({
+						to: addresses.eth as `0x${string}`,
+						value: parseEther(ethAmount),
+					});
+				} catch (error) {
+					toast.error("Something went wrong", {
+						description:
+							error instanceof Error ? error.message : "Internal server error",
+					});
+				}
 				return;
 			}
 			toast.error("Something went wrong", {
@@ -133,7 +148,7 @@ export function Withdraw() {
 							<Dollar value={user?.balance ?? 0} />
 						</div>
 					</div>
-					{!user?.walletAddress ? (
+					{!user?.mnemonic && !address ? (
 						<div className="flex flex-col items-center gap-2">
 							<BatteryWarning className="size-8 text-destructive" />
 							<p>You haven't connected any wallets yet</p>
