@@ -17,6 +17,7 @@ export const env = createEnv({
 		VITE_FAMILY_PROJECT_ID: z.string(),
 		VITE_DEV_API_URL: z.string().url(),
 		VITE_PROD_API_URL: z.string().url(),
+		VITE_ALCHEMY_API_KEY: z.string(),
 	},
 
 	/**

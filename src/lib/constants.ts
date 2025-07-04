@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import WebApp from "@twa-dev/sdk";
+import type { ReactNode } from "react";
 import { http, createWalletClient } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
@@ -14,7 +14,6 @@ export const mnemonicClient = (mnemonic: string) => {
 	});
 };
 
-export const { openTelegramLink, showPopup } = WebApp;
 export const withdrawBalance = (
 	balance: number,
 	plan: "free" | "premium" | "basic",
@@ -101,3 +100,16 @@ export const addresses = {
 export const apiUrl = import.meta.env.DEV
 	? env.VITE_DEV_API_URL
 	: env.VITE_PROD_API_URL;
+
+export interface ButtonProps {
+	variant?:
+		| "default"
+		| "destructive"
+		| "outline"
+		| "secondary"
+		| "ghost"
+		| "link";
+	size?: "default" | "sm" | "lg" | "icon";
+	className?: string;
+	children: ReactNode;
+}

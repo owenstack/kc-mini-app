@@ -1,0 +1,72 @@
+import { telegramAuth } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "../ui/card";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "../ui/table";
+import { PurchaseBooster } from "./get-booster";
+
+export function MultiplierCard() {
+	const { data: boosters } = useQuery({
+		queryKey: ["boosters"],
+		queryFn: async () => telegramAuth.getAvailableBoosters(),
+	});
+	return (
+		<Card className="w-full max-w-sm md:max-w-md">
+			<CardHeader>
+				<CardTitle>Multipliers and boosters</CardTitle>
+				<CardDescription>
+					Find and purchase multipliers and boosters to increase your balance
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<ScrollArea className="h-[300px] w-full">
+					<div className="pr-4">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Booster</TableHead>
+									<TableHead>Multiplier</TableHead>
+									<TableHead>Duration</TableHead>
+									<TableHead>Price (USD)</TableHead>
+									<TableHead>Action</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{boosters?.map((booster) => (
+									<TableRow key={booster.id}>
+										<TableCell>{booster.name}</TableCell>
+										<TableCell>{booster.multiplier}</TableCell>
+										<TableCell>
+											{booster.duration === 0
+												? "One time"
+												: `${Math.floor(booster.duration / (1000 * 60 * 60))}h ${Math.floor((booster.duration % (1000 * 60 * 60)) / (1000 * 60))}m`}
+										</TableCell>{" "}
+										<TableCell>${booster.price}</TableCell>
+										<TableCell>
+											<PurchaseBooster booster={booster} />
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</div>
+					<ScrollBar orientation="vertical" />
+					<ScrollBar orientation="horizontal" />
+				</ScrollArea>
+			</CardContent>
+		</Card>
+	);
+}

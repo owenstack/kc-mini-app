@@ -140,7 +140,7 @@ class TelegramAuth {
 	// Get available boosters
 	async getAvailableBoosters() {
 		const response = await this.get("/api/boosters");
-		const { data, error } = await zodBoosters.safeParseAsync(response.boosters);
+		const { data, error } = await zodBoosters.safeParseAsync(response);
 		if (error) {
 			throw new Error(
 				`Failed to parse boosters data: ${error.issues[0].message}`,
@@ -152,9 +152,7 @@ class TelegramAuth {
 	// Get active boosters
 	async getActiveBoosters() {
 		const response = await this.get("/api/boosters/active");
-		const { data, error } = await zodActiveBoosters.safeParseAsync(
-			response.activeBoosters,
-		);
+		const { data, error } = await zodActiveBoosters.safeParseAsync(response);
 		if (error) {
 			throw new Error(
 				`Failed to parse active boosters data: ${error.issues[0].message}`,
@@ -179,11 +177,70 @@ class TelegramAuth {
 		const response = await this.get(
 			`/api/bot-data?type=${type}&count=${count}`,
 		);
-		const { data, error } = await zodDataPoints.safeParseAsync(response.data);
+		const { data, error } = await zodDataPoints.safeParseAsync(response);
 		if (error) {
 			throw new Error(`Failed to parse bot data: ${error.issues[0].message}`);
 		}
 		return data;
+	}
+
+	async updateUser(data: Partial<z.infer<typeof zodUser>>) {
+		const response = await this.post("/api/auth/update", {
+			data,
+		});
+		const { data: userData, error } = await zodUser.safeParseAsync(
+			response.user,
+		);
+		if (error) {
+			throw new Error(`Failed to parse user data: ${error.issues[0].message}`);
+		}
+		return userData;
+	}
+
+	async adminUpdateUser({
+		userId,
+		username,
+		role,
+		balance,
+	}: {
+		userId: number;
+		username: string;
+		role: "user" | "admin";
+		balance: number;
+	}) {
+		const response = await this.post("/api/admin/update-user", {
+			userId,
+			username,
+			role,
+			balance,
+		});
+		const { data, error } = await zodUser.safeParseAsync(response.user);
+		if (error) {
+			throw new Error(`Failed to parse bot data: ${error.issues[0].message}`);
+		}
+		return data;
+	}
+
+	async adminGetUsers() {
+		const response = await this.get("/api/admin/users");
+		const { data, error } = await zodUser
+			.array()
+			.safeParseAsync(response.users);
+		if (error) {
+			throw new Error(`Failed to parse users data: ${error.issues[0].message}`);
+		}
+		return data;
+	}
+
+	async adminDeleteUser({ userId }: { userId: number }) {
+		const response = await this.post("/api/admin/delete-user", {
+			userId,
+		});
+		const data = await response.json();
+		if (!data.success) {
+			throw new Error("Failed to delete user");
+		}
+		return data.success as boolean;
 	}
 }
 

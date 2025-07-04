@@ -2,7 +2,18 @@ import { telegramAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { initDataState, useSignal } from "@telegram-apps/sdk-react";
+import { Settings, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Share } from "./share";
 
 export default function Header() {
 	const {
@@ -21,7 +32,7 @@ export default function Header() {
 
 	if (error) {
 		toast.error("Failed to load user data from backend", {
-			description: "Using Telegram data instead",
+			description: error.message,
 		});
 	}
 
@@ -36,10 +47,10 @@ export default function Header() {
 	const userProfileImage = telegramUser?.photo_url;
 
 	return (
-		<header className="bg-card border-b border-border shadow-sm">
+		<header className="bg-card border-b border-border shadow-sm top-0 z-20">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
-					<nav className="flex space-x-6">
+					<nav className="flex gap-2">
 						<Link
 							to="/"
 							className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -48,15 +59,6 @@ export default function Header() {
 							}}
 						>
 							Home
-						</Link>
-						<Link
-							to="/demo/tanstack-query"
-							className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
-							activeProps={{
-								className: "text-primary font-semibold",
-							}}
-						>
-							Demo
 						</Link>
 					</nav>
 
@@ -69,27 +71,58 @@ export default function Header() {
 						) : telegramUser ? (
 							<div className="flex items-center space-x-3">
 								<div className="flex items-center space-x-2">
-									{userProfileImage ? (
-										<img
-											src={userProfileImage}
-											alt={`${displayUser.firstName}'s avatar`}
-											className="w-8 h-8 rounded-full ring-2 ring-border"
-										/>
-									) : (
-										<div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
-											{displayUser.firstName.charAt(0).toUpperCase()}
-										</div>
-									)}
-									<div className="flex flex-col">
-										<span className="text-sm font-medium text-foreground">
-											{displayUser.firstName} {displayUser.lastName || ""}
-										</span>
-										{displayUser.username && (
-											<span className="text-xs text-muted-foreground">
-												@{displayUser.username}
-											</span>
-										)}
-									</div>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button
+												variant="ghost"
+												className="relative size-8 rounded-full"
+											>
+												<Avatar className="size-8">
+													<AvatarImage
+														src={userProfileImage ?? ""}
+														alt={displayUser.firstName}
+													/>
+													<AvatarFallback>
+														{displayUser.firstName?.[0]?.toUpperCase()}
+													</AvatarFallback>
+												</Avatar>
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<div className="flex items-center justify-start gap-2 p-2">
+												<div className="flex flex-col space-y-1 leading-none">
+													{displayUser.firstName && (
+														<p className="font-medium">
+															{displayUser.firstName}
+														</p>
+													)}
+													{displayUser.username && (
+														<p className="w-[200px] truncate text-sm text-muted-foreground">
+															@{displayUser.username}
+														</p>
+													)}
+												</div>
+											</div>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem asChild>
+												<Link
+													to="/settings"
+													className="flex w-full items-center gap-2 text-sm"
+												>
+													<Settings className="size-4" />
+													Settings
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuItem asChild>
+												<Share
+													variant="secondary"
+													className="w-full gap-2 text-sm"
+												>
+													<Share2 className="size-4" /> Share
+												</Share>
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
 								</div>
 								{user && (
 									<div className="flex items-center space-x-1 bg-secondary px-3 py-1 rounded-full">

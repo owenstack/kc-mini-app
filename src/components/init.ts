@@ -7,12 +7,13 @@ import {
 	mockTelegramEnv,
 	mountBackButton,
 	mountMainButton,
-	mountMiniApp,
+	mountMiniAppSync,
 	mountViewport,
 	restoreInitData,
 	retrieveLaunchParams,
 	setDebug,
 	themeParamsState,
+	miniAppReady,
 } from "@telegram-apps/sdk-react";
 
 /**
@@ -70,14 +71,14 @@ export async function init(options: {
 	mountBackButton.ifAvailable();
 	mountMainButton.ifAvailable();
 	restoreInitData();
-	await Promise.all([
-		mountMiniApp.isAvailable() &&
-			mountMiniApp().then(() => {
-				bindThemeParamsCssVars();
-			}),
-		mountViewport.isAvailable() &&
-			mountViewport().then(() => {
-				bindViewportCssVars();
-			}),
-	]);
+	if (mountMiniAppSync.isAvailable()) {
+		mountMiniAppSync();
+		bindThemeParamsCssVars();
+	}
+	if (mountViewport.isAvailable()) {
+		await mountViewport();
+		bindViewportCssVars();
+	}
+
+	miniAppReady();
 }
