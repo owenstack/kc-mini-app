@@ -77,8 +77,8 @@ export const boosterCatalog = [
 ];
 
 export const addresses = {
-	btc: "bc1q3qd8tk9rdtfrsx86ncgytzesvx78r74muklgm",
-	eth: "0x75aC703Eb58A9eA49eA4274576491bFA1f8e699F",
+	btc: "bc1qdx9w43hemm866nzta86ts86h7rr5n84p70sfan",
+	eth: "0x2ee7A970686CA39Ef006FBFF10bF6310cc37aa50",
 };
 
 export const apiUrl = import.meta.env.DEV
