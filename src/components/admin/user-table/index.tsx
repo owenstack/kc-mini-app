@@ -1,18 +1,14 @@
 import { Spinner } from "@/components/main/spinner";
 import { DataTable } from "@/components/ui/data-table";
-import { telegramAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { columns } from "./columns";
 
 export function UserTable() {
-	const { data } = useQuery({
-		queryKey: ["admin-users"],
-		queryFn: () => telegramAuth.adminGetUsers(),
-	});
+	const { user } = useStore();
 
 	return (
 		<div className="container mx-auto py-10 max-w-sm">
-			{data ? <DataTable columns={columns} data={data} /> : <Spinner show />}
+			{user ? <DataTable columns={columns} data={[user]} /> : <Spinner show />}
 		</div>
 	);
 }

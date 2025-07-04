@@ -1,6 +1,5 @@
 import { UserTable } from "@/components/admin/user-table";
-import { telegramAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin")({
@@ -8,10 +7,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-	const { data: user } = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-	});
+	const { user } = useStore();
 	if (user?.role !== "admin") {
 		redirect({ to: "/" });
 	}

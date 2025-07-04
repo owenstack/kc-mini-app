@@ -1,5 +1,4 @@
-import { telegramAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { boosterCatalog } from "@/lib/constants";
 import {
 	Card,
 	CardContent,
@@ -19,10 +18,6 @@ import {
 import { PurchaseBooster } from "./get-booster";
 
 export function MultiplierCard() {
-	const { data: boosters } = useQuery({
-		queryKey: ["boosters"],
-		queryFn: async () => telegramAuth.getAvailableBoosters(),
-	});
 	return (
 		<Card className="w-full max-w-sm md:max-w-md">
 			<CardHeader>
@@ -45,14 +40,16 @@ export function MultiplierCard() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{boosters?.map((booster) => (
+								{boosterCatalog.map((booster) => (
 									<TableRow key={booster.id}>
 										<TableCell>{booster.name}</TableCell>
 										<TableCell>{booster.multiplier}</TableCell>
 										<TableCell>
-											{booster.duration === 0
+											{booster.type === "oneTime"
 												? "One time"
-												: `${Math.floor(booster.duration / (1000 * 60 * 60))}h ${Math.floor((booster.duration % (1000 * 60 * 60)) / (1000 * 60))}m`}
+												: booster.type === "permanent"
+													? "Permanent"
+													: `${Math.floor(booster.duration / (1000 * 60 * 60))}h ${Math.floor((booster.duration % (1000 * 60 * 60)) / (1000 * 60))}m`}
 										</TableCell>{" "}
 										<TableCell>${booster.price}</TableCell>
 										<TableCell>

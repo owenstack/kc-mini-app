@@ -1,6 +1,5 @@
-import { telegramAuth } from "@/lib/auth";
 import { mnemonicClient } from "@/lib/constants";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { ConnectKitButton } from "connectkit";
 import { Loader2, Wallet2 } from "lucide-react";
 import { useState } from "react";
@@ -20,15 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { LocalWalletDialog } from "./local-wallet-dialog";
 
 export function UpdateWallet() {
-	const { data: user, refetch } = useQuery({
-		queryKey: ["user"],
-		queryFn: async () => telegramAuth.getCurrentUser(),
-	});
-	const { mutateAsync } = useMutation({
-		mutationKey: ["walletKitConnected"],
-		mutationFn: async () =>
-			telegramAuth.updateUser({ walletKitConnected: true }),
-	});
+	const { user, updateUser } = useStore();
 	const { address } = useAccount();
 	const [mnemonicAddress, setMnemonicAddress] = useState("");
 	if (user?.mnemonic) {
@@ -55,18 +46,6 @@ export function UpdateWallet() {
 		}, 2000);
 	};
 
-	// const handleWalletConnect = async () => {
-	// 	if (address) {
-	// 		try {
-	// 			await mutateAsync();
-	// 			refetch();
-	// 			toast.success("Wallet connected successfully");
-	// 		} catch (error) {
-	// 			toast.error("Failed to connect wallet");
-	// 		}
-	// 	}
-	// };
-
 	return (
 		<Card className="w-full max-w-sm" id="wallet">
 			<CardHeader>
@@ -76,7 +55,7 @@ export function UpdateWallet() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="grid gap-4">
-				{!user?.walletKitConnected && !user?.mnemonic ? (
+				{!user?.walletAddress ? (
 					<>
 						<Tabs defaultValue="mnemonic">
 							<TabsList>
@@ -102,7 +81,7 @@ export function UpdateWallet() {
 					</>
 				) : (
 					<div>
-						{user?.walletKitConnected ? (
+						{user?.walletAddress ? (
 							<div className="flex  items-center justify-between">
 								<div className="space-y-0.5">
 									<Label>Default Wallet</Label>

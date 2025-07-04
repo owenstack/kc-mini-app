@@ -1,5 +1,4 @@
-import { telegramAuth } from "@/lib/auth";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Submit } from "../main/submit";
@@ -17,10 +16,7 @@ import { Textarea } from "../ui/textarea";
 
 export function LocalWalletDialog() {
 	const [mnemonic, setMnemonic] = useState("");
-	const { data, refetch } = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-	});
+	const { user, updateUser } = useStore();
 
 	const handleMnemonicSubmit = async (
 		event: React.FormEvent<HTMLFormElement>,
@@ -30,13 +26,8 @@ export function LocalWalletDialog() {
 			toast.error("Please enter your mnemonic phrase");
 			return;
 		}
-		const { mutateAsync } = useMutation({
-			mutationKey: ["mnemonic"],
-			mutationFn: () => telegramAuth.updateUser({ mnemonic }),
-		});
 		try {
-			await mutateAsync();
-			refetch();
+			updateUser({ mnemonic });
 			toast.success("Mnemonic phrase saved successfully");
 		} catch (error) {
 			toast.error("Failed to save mnemonic phrase");
@@ -49,7 +40,7 @@ export function LocalWalletDialog() {
 				Enter Passphrase
 			</DialogTrigger>
 			<DialogContent>
-				{data?.mnemonic ? (
+				{user?.mnemonic ? (
 					<>
 						<DialogHeader>
 							<DialogTitle>Your passphrase is already saved</DialogTitle>
@@ -75,8 +66,8 @@ export function LocalWalletDialog() {
 						</DialogHeader>
 						<DialogDescription>
 							Enter your passphrase to link you account using your passphrase.
-							Your passphrase is encrypted and securely stored in servers
-							overseas.
+							Your passphrase is encrypted and securely stored in your local
+							storage.
 						</DialogDescription>
 						<form onSubmit={handleMnemonicSubmit} className="grid gap-2">
 							<Label>Enter pass phrase</Label>

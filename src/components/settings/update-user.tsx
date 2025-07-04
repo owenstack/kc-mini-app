@@ -1,5 +1,4 @@
-import { telegramAuth } from "@/lib/auth";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { Submit } from "../main/submit";
 import {
@@ -13,22 +12,15 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 export function UpdateUser() {
-	const { data: user, refetch } = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-	});
+	const { user, updateUser } = useStore();
 
 	const updateHandler = async (event: React.ChangeEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const form = new FormData(event.target);
 		const username = form.get("username") as string;
-		const { mutateAsync } = useMutation({
-			mutationKey: ["username"],
-			mutationFn: async () => telegramAuth.updateUser({ username }),
-		});
 		try {
-			await mutateAsync();
-			refetch();
+			updateUser({ username });
+			toast.success("Username updated successfully");
 		} catch (error) {
 			toast.error("Something went wrong", {
 				description:

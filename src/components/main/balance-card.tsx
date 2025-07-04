@@ -1,5 +1,4 @@
-import { telegramAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { RefreshCw } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -13,21 +12,7 @@ import { Dollar } from "./dollar";
 import { Withdraw } from "./withdraw-dialog";
 
 export function BalanceCard() {
-	const {
-		data: user,
-		isPending,
-		refetch,
-		isRefetching,
-	} = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-		refetchInterval: 10000, // Refetch every 10 seconds
-		refetchOnWindowFocus: false,
-		select: (data) => ({
-			...data,
-			balance: data.balance ?? 0, // Ensure balance is always a number
-		}),
-	});
+	const { user } = useStore();
 
 	return (
 		<Card className="w-full max-w-sm md:max-w-md">
@@ -42,14 +27,10 @@ export function BalanceCard() {
 							variant="ghost"
 							size={"icon"}
 							className="ml-2"
-							onClick={() => refetch()}
-							disabled={isPending || isRefetching}
+							onClick={() => {}}
+							disabled
 						>
-							{isPending || isRefetching ? (
-								<RefreshCw className="size-4 animate-spin" />
-							) : (
-								<RefreshCw className="size-4" />
-							)}
+							<RefreshCw className="size-4" />
 						</Button>
 					</CardDescription>
 				</div>

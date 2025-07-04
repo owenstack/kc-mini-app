@@ -1,9 +1,7 @@
-import { telegramAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { Link } from "@tanstack/react-router";
 import { initDataState, useSignal } from "@telegram-apps/sdk-react";
 import { Settings, Share2 } from "lucide-react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import {
@@ -14,27 +12,12 @@ import {
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Share } from "./share";
+import { Logo } from "./logo";
 
 export default function Header() {
-	const {
-		data: user,
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-		enabled: telegramAuth.isAuthenticated(),
-		retry: 2,
-		retryDelay: 1000,
-	});
+	const { user } = useStore();
 	const tgData = useSignal(initDataState);
 	const telegramUser = tgData?.user;
-
-	if (error) {
-		toast.error("Failed to load user data from backend", {
-			description: error.message,
-		});
-	}
 
 	// Use backend data if available, otherwise fallback to Telegram data
 	const displayUser = user || {
@@ -50,25 +33,9 @@ export default function Header() {
 		<header className="bg-card border-b border-border shadow-sm top-0 z-20">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
-					<nav className="flex gap-2">
-						<Link
-							to="/"
-							className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
-							activeProps={{
-								className: "text-primary font-semibold",
-							}}
-						>
-							Home
-						</Link>
-					</nav>
-
+					<Logo />
 					<div className="flex items-center space-x-4">
-						{isLoading ? (
-							<div className="flex items-center space-x-2">
-								<div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
-								<div className="w-20 h-4 bg-muted rounded animate-pulse" />
-							</div>
-						) : telegramUser ? (
+						{telegramUser ? (
 							<div className="flex items-center space-x-3">
 								<div className="flex items-center space-x-2">
 									<DropdownMenu>
@@ -133,12 +100,6 @@ export default function Header() {
 											${displayUser.balance.toLocaleString()}
 										</span>
 									</div>
-								)}
-								{error && (
-									<div
-										className="w-2 h-2 bg-destructive rounded-full animate-pulse"
-										title="Backend connection issue"
-									/>
 								)}
 							</div>
 						) : (

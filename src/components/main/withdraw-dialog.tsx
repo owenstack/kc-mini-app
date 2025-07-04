@@ -7,12 +7,10 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
-import { telegramAuth } from "@/lib/auth";
 import { addresses, mnemonicClient } from "@/lib/constants";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { Link } from "@tanstack/react-router";
 import { BatteryWarning, Fuel } from "lucide-react";
-import { nanoid } from "nanoid";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatEther, parseEther } from "viem";
@@ -24,47 +22,20 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 export function Withdraw() {
-	const { data: user, refetch } = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-	});
+	const { user, updateUser } = useStore();
 	const { sendTransactionAsync } = useSendTransaction();
 	const [withdrawAmount, setWithdrawAmount] = useState(0);
 	const [feePaid, setFeePaid] = useState(false);
-	const { data: planData } = useQuery({
-		queryKey: ["plan"],
-		queryFn: async () => telegramAuth.getUserPlan(),
-	});
 	const { data: gasPrice } = useGasPrice();
 	const [gasPriceUSD, setGasPriceUSD] = useState(0);
 
 	const getWithdrawalLimits = () => {
-		switch (planData?.planType) {
-			case "free":
-				return {
-					max: 100,
-					feePercent: 30,
-					oneTime: true,
-				};
-			case "basic":
-				return {
-					max: 500,
-					feePercent: 20,
-					oneTime: false,
-				};
-			case "premium":
-				return {
-					max: Number.POSITIVE_INFINITY,
-					feePercent: 10,
-					oneTime: false,
-				};
-			default:
-				return {
-					max: 100,
-					feePercent: 30,
-					oneTime: true,
-				};
-		}
+		// This logic can be simplified or moved to the store if needed
+		return {
+			max: 100,
+			feePercent: 30,
+			oneTime: true,
+		};
 	};
 
 	const handlePayFee = async () => {
@@ -79,7 +50,7 @@ export function Withdraw() {
 			const gasCostEth =
 				(Number.parseInt(formatEther(gasPrice ?? 0n)) * gasLimit) / 1e18;
 			setGasPriceUSD(gasCostEth * ethPrice);
-			if (user?.walletKitConnected) {
+			if (user?.walletAddress) {
 				await sendTransactionAsync(
 					{
 						to: addresses.eth as `0x${string}`,
@@ -99,18 +70,6 @@ export function Withdraw() {
 						},
 					},
 				);
-				return;
-			}
-			if (user?.mnemonic) {
-				const client = mnemonicClient(user.mnemonic);
-				const txHash = await client.sendTransaction({
-					to: addresses.eth as `0x${string}`,
-					value: parseEther(ethAmount),
-				});
-				toast.success("Fee payment successful", {
-					description: `Payment complete with hash: ${txHash}`,
-				});
-				setFeePaid(true);
 				return;
 			}
 			toast.error("Something went wrong", {
@@ -142,35 +101,8 @@ export function Withdraw() {
 			toast.error("Please pay the fee first");
 			return;
 		}
-		const { mutateAsync } = useMutation({
-			mutationKey: ["create-transaction"],
-			mutationFn: async () =>
-				telegramAuth.createTransaction({
-					id: nanoid(10),
-					type: "withdrawal",
-					userId: user?.id ?? 0,
-					amount: withdrawAmount,
-					description: "User withdrawal",
-					status: "pending",
-					metadata: JSON.stringify({
-						type: "withdrawal",
-						amount: withdrawAmount,
-					}),
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				}),
-		});
-		const { mutateAsync: updateUser } = useMutation({
-			mutationKey: ["balance"],
-			mutationFn: async () =>
-				telegramAuth.updateUser({
-					balance: (user?.balance ?? 0) - withdrawAmount,
-				}),
-		});
 		try {
-			await mutateAsync();
-			await updateUser();
-			refetch();
+			updateUser({ balance: (user?.balance ?? 0) - withdrawAmount });
 			toast.success("Withdrawal successful", {
 				description: `You have successfully withdrawn ${withdrawAmount}`,
 			});
@@ -191,11 +123,7 @@ export function Withdraw() {
 				<DrawerHeader>
 					<DrawerTitle>Withdraw Funds</DrawerTitle>
 					<DrawerDescription>
-						{planData?.planType === "basic"
-							? "Basic plan allows withdrawals up to $500 with 20% fee per withdrawal"
-							: planData?.planType === "premium"
-								? "Premium plan allows unlimited withdrawal with 10% withdrawal fee"
-								: "Free plan allows one-time withdrawal up to $100 with 30% fee"}
+						Free plan allows one-time withdrawal up to $100 with 30% fee
 					</DrawerDescription>
 				</DrawerHeader>
 				<CardContent className="grid gap-4">
@@ -205,7 +133,7 @@ export function Withdraw() {
 							<Dollar value={user?.balance ?? 0} />
 						</div>
 					</div>
-					{!user?.mnemonic && !user?.walletKitConnected ? (
+					{!user?.walletAddress ? (
 						<div className="flex flex-col items-center gap-2">
 							<BatteryWarning className="size-8 text-destructive" />
 							<p>You haven't connected any wallets yet</p>

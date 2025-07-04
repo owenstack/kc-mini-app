@@ -1,10 +1,15 @@
 import { env } from "@/env";
+import { useStore } from "@/lib/store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
-import { isMiniAppDark, useSignal } from "@telegram-apps/sdk-react";
+import {
+	initDataUser,
+	isMiniAppDark,
+	useSignal,
+} from "@telegram-apps/sdk-react";
 import { AppRoot } from "@telegram-apps/telegram-ui";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { http, WagmiProvider, createConfig } from "wagmi";
 import { mainnet } from "wagmi/chains";
 
@@ -32,6 +37,25 @@ const config = createConfig(
 
 export function Provider({ children }: { children: React.ReactNode }) {
 	const lp = useMemo(() => retrieveLaunchParams(), []);
+	useEffect(() => {
+		if (!localUser) {
+			setUser({
+				id: user?.id.toString() ?? "",
+				telegramId: user?.id.toString() ?? "",
+				username: user?.username,
+				balance: 0,
+				role: "user",
+				planType: "free",
+				walletKitConnected: false,
+				banned: false,
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			});
+		}
+	}, []);
+	const user = useSignal(initDataUser);
+	const { setUser, user: localUser } = useStore();
+
 	const isDark = useSignal(isMiniAppDark);
 	return (
 		<WagmiProvider config={config}>

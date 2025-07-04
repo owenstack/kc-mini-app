@@ -12,16 +12,25 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import { telegramAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
+import { type DataPoint, getSimulatedData } from "@/lib/simulation";
+import { useStore } from "@/lib/store";
 import { TrendingUp, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 export function LiveChart() {
-	const { data: chartData } = useQuery({
-		queryKey: ["live-data"],
-		queryFn: async () => telegramAuth.getBotData("mev", 100),
-	});
+	const [chartData, setChartData] = useState<DataPoint[]>([]);
+	const { activeBoosters } = useStore();
+
+	useEffect(() => {
+		const interval = setInterval(async () => {
+			const newData = await getSimulatedData("mev", 1);
+			setChartData((prevData) => [...prevData.slice(-99), ...newData]);
+		}, 2500);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	const formatTimestamp = (timestamp: number) => {
 		return new Date(timestamp).toLocaleTimeString();
 	};
@@ -29,11 +38,6 @@ export function LiveChart() {
 	const formatValue = (value: number) => {
 		return `${value.toFixed(2)}`;
 	};
-
-	const { data: activeBoosters } = useQuery({
-		queryKey: ["active-boosters"],
-		queryFn: async () => telegramAuth.getActiveBoosters(),
-	});
 
 	return (
 		<Card className="h-[22rem] max-w-sm md:max-w-md md:h-[400px] mt-4 w-full">

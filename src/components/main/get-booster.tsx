@@ -1,14 +1,10 @@
-import { telegramAuth } from "@/lib/auth";
-import { addresses } from "@/lib/constants";
-import { mnemonicClient } from "@/lib/constants";
-import type { zodBooster } from "@/lib/constants";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { addresses, mnemonicClient } from "@/lib/constants";
+import { type ActiveBooster, useStore } from "@/lib/store";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { parseEther } from "viem";
 import { useSendTransaction } from "wagmi";
-import type { z } from "zod";
 import { Dollar } from "../main/dollar";
 import { Button, buttonVariants } from "../ui/button";
 import { CardContent } from "../ui/card";
@@ -21,26 +17,52 @@ import {
 	DialogTrigger,
 } from "../ui/dialog";
 
-export function PurchaseBooster({
-	booster,
-}: { booster: z.infer<typeof zodBooster> }) {
+interface Booster {
+	id: string;
+	name: string;
+	description: string;
+	multiplier: number;
+	duration: number;
+	price: number;
+	type: "oneTime" | "duration" | "permanent";
+}
+
+export function PurchaseBooster({ booster }: { booster: Booster }) {
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const { user, updateUser, addBooster } = useStore();
 	const { sendTransactionAsync } = useSendTransaction();
-	const { data: user, refetch } = useQuery({
-		queryKey: ["user"],
-		queryFn: () => telegramAuth.getCurrentUser(),
-	});
 
 	const payByBalance = async () => {
-		const { mutateAsync } = useMutation({
-			mutationKey: ["purchaseBooster"],
-			mutationFn: async () => telegramAuth.purchaseBooster(booster.id),
-		});
 		setLoading(true);
 		try {
-			await mutateAsync();
-			refetch();
+			if (!user || user.balance < booster.price) {
+				toast.error("Insufficient balance");
+				return;
+			}
+
+			const now = Date.now();
+			let expiresAt: number | undefined = undefined;
+
+			if (booster.type === "duration") {
+				expiresAt = now + booster.duration;
+			} else if (booster.type === "oneTime") {
+				// For one-time boosters, they expire immediately after use
+				expiresAt = now;
+			}
+
+			const newActiveBooster: ActiveBooster = {
+				id: `${booster.id}-${now}`,
+				boosterId: booster.id,
+				name: booster.name,
+				activatedAt: now,
+				expiresAt,
+				type: booster.type,
+				multiplier: booster.multiplier,
+			};
+
+			updateUser({ balance: user.balance - booster.price });
+			addBooster(newActiveBooster);
 			toast.success("Purchase successful!", {
 				description: `You have successfully purchased the booster: ${booster.name}`,
 			});
@@ -55,10 +77,6 @@ export function PurchaseBooster({
 	};
 
 	const payByWallet = async () => {
-		const { mutateAsync } = useMutation({
-			mutationKey: ["purchaseBooster"],
-			mutationFn: async () => telegramAuth.purchaseBooster(booster.id, true),
-		});
 		setLoading(true);
 		try {
 			const ethPriceResponse = await fetch(
@@ -67,6 +85,30 @@ export function PurchaseBooster({
 			const ethPriceData = await ethPriceResponse.json();
 			const ethPrice = ethPriceData.ethereum.usd;
 			const ethAmount = (booster.price / ethPrice).toString();
+			if (!user || user.balance < booster.price) {
+				toast.error("Insufficient balance");
+				return;
+			}
+
+			const now = Date.now();
+			let expiresAt: number | undefined = undefined;
+
+			if (booster.type === "duration") {
+				expiresAt = now + booster.duration;
+			} else if (booster.type === "oneTime") {
+				// For one-time boosters, they expire immediately after use
+				expiresAt = now;
+			}
+
+			const newActiveBooster: ActiveBooster = {
+				id: `${booster.id}-${now}`,
+				boosterId: booster.id,
+				name: booster.name,
+				activatedAt: now,
+				expiresAt,
+				type: booster.type,
+				multiplier: booster.multiplier,
+			};
 			if (user?.walletKitConnected) {
 				await sendTransactionAsync(
 					{
@@ -86,7 +128,8 @@ export function PurchaseBooster({
 						},
 					},
 				);
-				await mutateAsync();
+				updateUser({ balance: user.balance - booster.price });
+				addBooster(newActiveBooster);
 				toast.success("Purchase successful!", {
 					description: `You have successfully purchased ${booster.name}`,
 				});
@@ -102,7 +145,8 @@ export function PurchaseBooster({
 				toast.success("Fee payment successful", {
 					description: `Payment complete with hash: ${txHash}`,
 				});
-				await mutateAsync();
+				updateUser({ balance: user.balance - booster.price });
+				addBooster(newActiveBooster);
 				toast.success("Purchase successful!", {
 					description: `You have successfully purchased ${booster.name}`,
 				});
@@ -166,7 +210,6 @@ export function PurchaseBooster({
 							className="w-full sm:w-auto"
 							variant="outline"
 							size="lg"
-							disabled={loading}
 							onClick={payByWallet}
 						>
 							Wallet

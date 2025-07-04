@@ -5,9 +5,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { telegramAuth } from "@/lib/auth";
 import type { zodUser } from "@/lib/constants";
-import { useMutation } from "@tanstack/react-query";
+import { useStore } from "@/lib/store";
 import { Pencil, Trash } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -42,6 +41,7 @@ interface UpdateUserProps {
 
 export function UpdateUser({ user, onDelete }: UpdateUserProps) {
 	const [open, setOpen] = useState(false);
+	const { updateUser } = useStore();
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -49,22 +49,9 @@ export function UpdateUser({ user, onDelete }: UpdateUserProps) {
 		const username = formData.get("username") as string;
 		const role = formData.get("role") as "user" | "admin";
 		const balance = Number(formData.get("balance"));
-		const { mutateAsync } = useMutation({
-			mutationKey: ["updateUser", user.id],
-			mutationFn: async () =>
-				telegramAuth.adminUpdateUser({
-					userId: user.id,
-					username,
-					role,
-					balance,
-				}),
-		});
 
 		try {
-			const data = await mutateAsync();
-			if (!data) {
-				throw new Error("Failed to update user");
-			}
+			updateUser({ username, role, balance });
 			toast.success("User updated successfully");
 			setOpen(false);
 		} catch (error) {

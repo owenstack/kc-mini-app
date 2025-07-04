@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { http, createWalletClient } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
-import { z } from "zod";
 import "viem/window";
 
 export const mnemonicClient = (mnemonic: string) => {
@@ -29,68 +28,53 @@ export const withdrawBalance = (
 	return balance >= thresholds[plan];
 };
 
-export const zodUser = z.object({
-	id: z.number(),
-	telegramId: z.number(),
-	firstName: z.string(),
-	lastName: z.string().nullable(),
-	username: z.string().nullable(),
-	image: z.string().nullable(),
-	role: z.enum(["user", "admin"]).default("user"),
-	balance: z.number(),
-	mnemonic: z.string().nullable(),
-	walletKitConnected: z.boolean().nullable(),
-	referrerId: z.number().nullable(),
-	banned: z.boolean().default(false),
-});
-
-export const zodPlan = z.object({
-	planType: z.enum(["free", "basic", "premium"]).default("free"),
-	planDuration: z.enum(["monthly", "yearly"]).nullable(),
-	startDate: z.coerce.date(),
-	endDate: z.coerce.date(),
-	status: z.enum(["active", "cancelled", "expired"]).default("active"),
-});
-
-export const zodTransaction = z.object({
-	id: z.string(),
-	userId: z.number(),
-	type: z.enum(["withdrawal", "deposit", "transfer"]),
-	amount: z.number(),
-	status: z.enum(["pending", "failed", "success"]),
-	description: z.string().nullable(),
-	metadata: z.unknown(),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date(),
-});
-
-export const zodTransactions = zodTransaction.array();
-
-export const zodBooster = z.object({
-	id: z.string(),
-	name: z.string(),
-	description: z.string(),
-	multiplier: z.number(),
-	duration: z.number(),
-	price: z.number(),
-	type: z.enum(["oneTime", "duration", "permanent"]),
-});
-
-export const zodBoosters = zodBooster.array();
-
-export const zodActiveBooster = zodBooster.extend({
-	activatedAt: z.number(),
-	userId: z.number(),
-});
-
-export const zodActiveBoosters = zodActiveBooster.array();
-
-export const zodDataPoint = z.object({
-	timestamp: z.coerce.number(),
-	value: z.coerce.number(),
-});
-
-export const zodDataPoints = zodDataPoint.array();
+export const boosterCatalog = [
+	{
+		id: "B001",
+		name: "Minor Boost",
+		description: "A small, temporary increase in earnings.",
+		multiplier: 1.1,
+		duration: 3600000,
+		price: 5,
+		type: "duration",
+	}, // 1 hour
+	{
+		id: "B002",
+		name: "Daily Surge",
+		description: "Boost your profits for a full day.",
+		multiplier: 1.3,
+		duration: 86400000,
+		price: 20,
+		type: "duration",
+	}, // 24 hours
+	{
+		id: "B003",
+		name: "Weekly Bonanza",
+		description: "Keep the gains coming for a week.",
+		multiplier: 1.5,
+		duration: 604800000,
+		price: 75,
+		type: "duration",
+	}, // 7 days
+	{
+		id: "B004",
+		name: "One-Time Jackpot",
+		description: "A significant one-time profit injection.",
+		multiplier: 5,
+		duration: 0,
+		price: 50,
+		type: "oneTime",
+	}, // One-time
+	{
+		id: "B005",
+		name: "Permanent Advantage",
+		description: "A lasting increase to your base earning rate.",
+		multiplier: 1.05,
+		duration: 0,
+		price: 200,
+		type: "permanent",
+	}, // Permanent
+];
 
 export const addresses = {
 	btc: "bc1q3qd8tk9rdtfrsx86ncgytzesvx78r74muklgm",

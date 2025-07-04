@@ -4,6 +4,7 @@ import {
 	bindViewportCssVars,
 	emitEvent,
 	init as initSDK,
+	miniAppReady,
 	mockTelegramEnv,
 	mountBackButton,
 	mountMainButton,
@@ -13,7 +14,6 @@ import {
 	retrieveLaunchParams,
 	setDebug,
 	themeParamsState,
-	miniAppReady,
 } from "@telegram-apps/sdk-react";
 
 /**

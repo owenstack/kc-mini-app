@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export function Logo({ className }: { className?: string }) {
 	const [clicks, setClicks] = useState<number[]>([]);
@@ -40,7 +41,11 @@ export function Logo({ className }: { className?: string }) {
 	};
 
 	return (
-		<Button variant="ghost" className={className} onClick={handleClick}>
+		<Button
+			variant="ghost"
+			className={cn("text-primary-foreground", className)}
+			onClick={handleClick}
+		>
 			<Star className="text-primary items-baseline" />
 			Galaxy
 		</Button>
