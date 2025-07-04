@@ -26,7 +26,7 @@ export function LiveChart() {
 		const interval = setInterval(async () => {
 			const newData = await getSimulatedData("mev", 1);
 			setChartData((prevData) => [...prevData.slice(-99), ...newData]);
-		}, 2500);
+		}, 2000);
 
 		return () => clearInterval(interval);
 	}, []);

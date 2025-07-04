@@ -5,7 +5,6 @@ import ReactDOM from "react-dom/client";
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
 import "@telegram-apps/telegram-ui/dist/styles.css";
 import { init } from "@/components/init";
-import "@telegram-apps/telegram-ui/dist/styles.css";
 import "@/components/mock-env";
 
 // Import the generated route tree
@@ -44,7 +43,7 @@ if (rootElement && !rootElement.innerHTML) {
 		const debug =
 			(launchParams.tgWebAppStartParam || "").includes("platformer_debug") ||
 			import.meta.env.DEV;
-		await init({
+		init({
 			debug,
 			eruda: debug && ["ios", "android"].includes(platform),
 			mockForMacOS: platform === "macos",
